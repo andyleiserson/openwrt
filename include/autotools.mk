@@ -51,7 +51,7 @@ endef
 
 # 1: build dir
 define patch_libtool
-	@(cd $(1); \
+	(cd $(1); \
 		for lt in $$$$($$(STAGING_DIR_HOST)/bin/find . -name ltmain.sh); do \
 			lt_version="$$$$($$(STAGING_DIR_HOST)/bin/sed -ne 's,^[[:space:]]*VERSION="\?\([0-9]\.[0-9]\+\).*,\1,p' $$$$lt)"; \
 			case "$$$$lt_version" in \
@@ -143,12 +143,8 @@ define patch_libtool_host
     $(HOST_BUILD_DIR)))
 endef
 
-ifneq ($(filter patch-libtool,$(PKG_FIXUP)),)
-  Hooks/HostConfigure/Pre += patch_libtool_host
-endif
-
 ifneq ($(filter patch-libtool,$(HOST_FIXUP)),)
-  Hooks/HostConfigure/Pre += $(strip $(call patch_libtool,$(HOST_BUILD_DIR)))
+  Hooks/HostConfigure/Pre += patch_libtool_host
 endif
 
 ifneq ($(filter libtool,$(HOST_FIXUP)),)
