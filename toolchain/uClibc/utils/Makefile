@@ -7,18 +7,18 @@ HOST_STAMP_INSTALLED:=$(TOOLCHAIN_DIR)/stamp/.uclibc_utils_installed
 
 define Host/Compile
 	$(SED) 's,^CROSS=.*,CROSS=$(TARGET_CROSS),g' $(HOST_BUILD_DIR)/Rules.mak
-	$(UCLIBC_MAKE) PREFIX= utils
+	$(UCLIBC_MAKE) PREFIX= hostutils
 endef
 
 define Host/Install
 	$(INSTALL_DIR) $(TOOLCHAIN_DIR)/bin
 	$(INSTALL_BIN) \
-		$(HOST_BUILD_DIR)/utils/ldd \
-		$(TOOLCHAIN_DIR)/bin/
+		$(HOST_BUILD_DIR)/utils/ldd.host \
+		$(TOOLCHAIN_DIR)/bin/ldd
 	$(INSTALL_DIR) $(TOOLCHAIN_DIR)/sbin
 	$(INSTALL_BIN) \
-		$(HOST_BUILD_DIR)/utils/ldconfig \
-		$(TOOLCHAIN_DIR)/sbin/
+		$(HOST_BUILD_DIR)/utils/ldconfig.host \
+		$(TOOLCHAIN_DIR)/sbin/ldconfig
 endef
 
 $(eval $(call HostBuild))
