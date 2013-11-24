@@ -27,6 +27,7 @@ PKG_CONFIG_DEPENDS:= \
 
 PKG_FIXUP:=autoreconf
 
+include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/util-linux/Default
@@ -43,6 +44,16 @@ CONFIGURE_ARGS += \
 	--without-python	\
 	--without-udev		\
 	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses)
+
+# We only need libuuid, but using the same args as the target build to avoid
+# having a long list of --disables that needs to be maintained.
+HOST_CONFIGURE_ARGS += \
+	--enable-new-mount	\
+	--with-ncurses		\
+	--disable-tls		\
+	--disable-sulogin	\
+	--without-python	\
+	--without-udev
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
 
@@ -72,6 +83,10 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/.libs/libmount.{a,so*} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libuuid.{a,so*} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libsmartcols.{a,so*} $(1)/usr/lib
+endef
+
+define Host/Install
+	$(MAKE) -C $(HOST_BUILD_DIR)/libuuid install
 endef
 
 define Package/libblkid
@@ -593,6 +608,7 @@ define Package/wipefs/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/wipefs $(1)/usr/sbin/
 endef
 
+$(eval $(call HostBuild))
 $(eval $(call BuildPackage,libblkid))
 $(eval $(call BuildPackage,libmount))
 $(eval $(call BuildPackage,libsmartcols))
